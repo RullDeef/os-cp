@@ -1,0 +1,13 @@
+[Unit]
+Description=Joystick virtual keyboard service
+
+[Service]
+Type=exec
+Restart=always
+RestartSec=1
+User=rulldeef
+EnvironmentFile=/var/lib/joystick_virt_kbd/.env
+ExecStart=/usr/bin/env joystick_virt_kbd
+
+[Install]
+WantedBy=multi-user.target

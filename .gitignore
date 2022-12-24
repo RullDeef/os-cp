@@ -1,0 +1,11 @@
+driver/*
+!driver/Makefile
+!driver/src
+driver/src/*
+!driver/src/*.h
+!driver/src/*.c
+
+daemon/daemon
+daemon/src/*.o
+
+docs/build

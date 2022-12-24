@@ -1,0 +1,73 @@
+{
+    "configurations": [
+        {
+            "name": "driver 5.15",
+            "defines": [
+                "__KERNEL__",
+                "MODULE",
+                "KBUILD_MODNAME"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x64",
+            "includePath": [
+                "/usr/src/linux-lts/arch/x86/include",
+                "/usr/src/linux-lts/arch/x86/include/generated",
+                "/usr/src/linux-lts/include",
+                "/usr/src/linux-lts/arch/x86/include/uapi",
+                "/usr/src/linux-lts/arch/x86/include/generated/uapi",
+                "/usr/src/linux-lts/include/uapi",
+                "/usr/src/linux-lts/include/generated/uapi",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.0/include"
+            ],
+            "compilerArgs": [
+                "-nostdinc",
+                "-include",
+                "/usr/src/linux-lts/include/linux/kconfig.h",
+                "-include",
+                "/usr/src/linux-lts/include/linux/compiler_types.h"
+            ]
+        },
+        {
+            "name": "driver 6.1",
+            "defines": [
+                "__KERNEL__",
+                "MODULE",
+                "KBUILD_MODNAME"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x64",
+            "includePath": [
+                "/usr/src/linux/arch/x86/include",
+                "/usr/src/linux/arch/x86/include/generated",
+                "/usr/src/linux/include",
+                "/usr/src/linux/arch/x86/include/uapi",
+                "/usr/src/linux/arch/x86/include/generated/uapi",
+                "/usr/src/linux/include/uapi",
+                "/usr/src/linux/include/generated/uapi",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.0/include"
+            ],
+            "compilerArgs": [
+                "-nostdinc",
+                "-include",
+                "/usr/src/linux/include/linux/kconfig.h",
+                "-include",
+                "/usr/src/linux/include/linux/compiler_types.h"
+            ]
+        },
+        {
+            "name": "daemon Qt",
+            "compilerPath": "/usr/bin/g++",
+            "cppStandard": "c++23",
+            "includePath": [
+                "/usr/include/qt/**",
+                "/usr/include/qt6/**",
+                "/usr/include/c++/12.2.0"
+            ]
+        }
+    ],
+    "version": 4
+}

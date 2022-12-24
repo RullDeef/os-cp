@@ -1,0 +1,6 @@
+[Unit]
+Description=Restarter for joystick virtual keyboard service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart joystick_virt_kbd

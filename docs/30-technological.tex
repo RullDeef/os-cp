@@ -1,0 +1,127 @@
+\section{Технологический раздел}
+
+На момент написания данной работы новейшей версией ярда Linux была версия 6.1. LTS версия ядра -- 5.15.
+
+Загружаемый модуль ядра будет написан для версий ядра 5.15 и 6.1. Для учета особенностей каждой из версий будет использована условная компиляция.
+
+Демон будет написан в виде сервиса утилиты systemd.
+
+\subsection{Выбор средств реализации}
+
+Несмотря на то, что в ядро Linux с версии 6.1 добавлена поддержка языка программирования Rust, для написания драйвера был выбран язык программирования C, так как внедрение языка Rust является экспериментальной особенностью.
+
+Для написания демона был выбран язык программирования С++. Также было решено использовать библиотеку Qt для создания и отображения виртуальной клавиатуры.
+
+Для сборки обоих программ будет использована утилита Make.
+
+В качестве среды разработки была выбран редактор VSCode.
+
+\clearpage
+
+\subsection{Реализация алгоритмов}
+
+На листинге \ref{lst:driver:urb-handle} приведена реализация обработки корректного URB пакета.
+
+\begin{code}
+	\captionof{listing}{Реализация алгоритма обработки корректного блока URB}
+	\label{lst:driver:urb-handle}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/driver.c}
+\end{code}
+
+На листинге \ref{lst:driver:proc-read} приведена реализация функций работы с файлом в виртуальной файловой системе /proc.
+
+\begin{code}
+	\captionof{listing}{Реализация функций работы с файлом событий}
+	\label{lst:driver:proc-read}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/proc_event.c}  
+\end{code}
+
+На листинге \ref{lst:driver:input-dev} представлена реализация функций для работы с устройством ввода подсистемы \texttt{input}.
+
+\begin{code}
+	\captionof{listing}{Реализация функций для работы с устройством ввода подсистемы \texttt{input}}
+	\label{lst:driver:input-dev}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/input_dev.c}  
+\end{code}
+
+\subsection{Файлы конфигурации сервисов}
+
+Для запуска программы в виде демона с использованием утилиты systemd необходимо создать юнит-файл с конфигурацией сервиса. На листинге \ref{lst:service:virt-kbd} приведено содержимое файла \texttt{joystick\_virt\_kbd.service}.
+
+\begin{code}
+	\captionof{listing}{Конфигурационный файл \texttt{joystick\_virt\_kbd.service}}
+	\label{lst:service:virt-kbd}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\small,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/joystick_virt_kbd.service}  
+\end{code}
+
+\clearpage
+
+На листинге \ref{lst:service:makefile} представлена часть файла сборки, отвечающая за установку и удаление сервиса из подсистемы \texttt{systemd}.
+
+\begin{code}
+	\captionof{listing}{makefile для сборки демона}
+	\label{lst:service:makefile}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\small,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/sysd_makefile}  
+\end{code}
+
+\pagebreak

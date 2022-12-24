@@ -1,0 +1,39 @@
+{
+    "files.associations": {
+        "*.h": "c",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
+    },
+    "files.exclude": {
+        // "**/*.cmd": true,
+        // "**/*.mod": true,
+        // "**/*.mod.c": true,
+        // "**/*.o": true,
+        // "**/*.order": true,
+        // "**/*.symvers": true,
+    },
+    "cSpell.words": [
+        "altsetting",
+        "devm",
+        "evbit",
+        "eventfd",
+        "gamepad",
+        "interruptible",
+        "intfdata",
+        "IRUGO",
+        "JSKBD",
+        "keybit",
+        "keycodemax",
+        "keycodes",
+        "keycodesize",
+        "keypos",
+        "kfree",
+        "kzalloc",
+        "LEFTALT",
+        "loff",
+        "rcvintpipe",
+        "relbit",
+        "usbdev",
+        "waitqueue"
+    ]
+}
