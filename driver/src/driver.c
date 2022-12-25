@@ -6,6 +6,7 @@
 #include <linux/usb.h>
 #include <linux/input.h>
 #include <linux/proc_fs.h>
+#include <linux/time.h>
 #include "config.h"
 #include "usb_joystick_kbd.h"
 #include "proc_event.h"
@@ -181,24 +182,31 @@ void dispatch_joystick_input(struct usb_joystick_kbd *usb_joystick_kbd)
 
 void jskbd_complete(struct urb *urb)
 {
-    int status = urb->status;
-    struct usb_joystick_kbd *usb_joystick_kbd = (struct usb_joystick_kbd *)urb->context;
+    struct usb_joystick_kbd *jst;
+    int status;
+    ktime_t start_time;
+    ktime_t stop_time;
+    
+    start_time = ktime_get();
+
+    jst = (struct usb_joystick_kbd *)urb->context;
+    status = urb->status;
 
     switch (status)
     {
     case 0:
         // printk(KERN_INFO MOD_PREFIX "urb completed!\n");
-        dispatch_joystick_input(usb_joystick_kbd);
+        dispatch_joystick_input(jst);
         break;
 
     case -ECONNRESET:
     case -ENOENT:
     case -ESHUTDOWN:
-        spin_lock(&usb_joystick_kbd->event_lock);
-        memset(&usb_joystick_kbd->event, 0xFF, sizeof(struct joystick_event));
-        usb_joystick_kbd->has_new_event = true;
-        spin_unlock(&usb_joystick_kbd->event_lock);
-        wake_up_all(&usb_joystick_kbd->wq);
+        spin_lock(&jst->event_lock);
+        memset(&jst->event, 0xFF, sizeof(struct joystick_event));
+        jst->has_new_event = true;
+        spin_unlock(&jst->event_lock);
+        wake_up_all(&jst->wq);
 
         printk(KERN_WARNING MOD_PREFIX "bad urb status: %d\n", status);
         return;
@@ -209,12 +217,15 @@ void jskbd_complete(struct urb *urb)
     }
 
     // printk(KERN_INFO MOD_PREFIX "submitting new urb...\n");
-    memset(usb_joystick_kbd->transfer_buffer, 0, PACKET_LEN);
+    memset(jst->transfer_buffer, 0, PACKET_LEN);
     status = usb_submit_urb(urb, GFP_ATOMIC);
     if (status != 0)
     {
         printk(KERN_ERR MOD_PREFIX "failed to resubmit urb. status=%d\n", status);
     }
+
+    stop_time = ktime_get();
+    printk(KERN_INFO MOD_PREFIX "execution time: %lld ns\n", stop_time - start_time);
 }
 
 int probe(struct usb_interface *intf, const struct usb_device_id *id)

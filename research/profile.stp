@@ -1,0 +1,11 @@
+global times;
+
+probe module("joystick_kbd").function("jskbd_complete")
+{
+    times[cpu()] = local_clock_ns();
+}
+
+probe module("joystick_kbd").function("jskbd_complete").return
+{
+    println(local_clock_ns() - times[cpu()]);
+}

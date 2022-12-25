@@ -5,12 +5,12 @@
         "fstream": "cpp"
     },
     "files.exclude": {
-        // "**/*.cmd": true,
-        // "**/*.mod": true,
-        // "**/*.mod.c": true,
-        // "**/*.o": true,
-        // "**/*.order": true,
-        // "**/*.symvers": true,
+        "**/*.cmd": true,
+        "**/*.mod": true,
+        "**/*.mod.c": true,
+        "**/*.o": true,
+        "**/*.order": true,
+        "**/*.symvers": true,
     },
     "cSpell.words": [
         "altsetting",
