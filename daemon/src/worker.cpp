@@ -68,5 +68,5 @@ void *Worker::handler()
     }
 
     emit closeWindow();
-    return nullptr;
+    exit(-1);
 }

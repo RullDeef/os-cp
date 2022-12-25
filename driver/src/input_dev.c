@@ -6,8 +6,8 @@
 #include "usb_joystick_kbd.h"
 #include "keycode_map.h"
 
-static int jskbd_input_open(struct input_dev *input_dev);
-static void jskbd_input_close(struct input_dev *input_dev);
+static int input_open(struct input_dev *input_dev);
+static void input_close(struct input_dev *input_dev);
 
 static void input_timer_callback(struct timer_list *timer);
 
@@ -21,8 +21,8 @@ struct input_dev *allocate_joystick_input_dev(struct usb_device *usb_dev)
     // fill input device struct (minimal needed)
     usb_to_input_id(usb_dev, &input_dev->id);
     input_dev->name = INPUT_DEV_NAME;
-    input_dev->open = jskbd_input_open;
-    input_dev->close = jskbd_input_close;
+    input_dev->open = input_open;
+    input_dev->close = input_close;
 
     // setup input events that input device can produce
     input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
@@ -38,8 +38,8 @@ struct input_dev *allocate_joystick_input_dev(struct usb_device *usb_dev)
     __clear_bit(KEY_RESERVED, input_dev->keybit);
 
     // setup keyboard events
-    input_set_capability(input_dev, EV_KEY, KEY_TAB);
-    input_set_capability(input_dev, EV_KEY, KEY_LEFTALT);
+    // input_set_capability(input_dev, EV_KEY, KEY_TAB);
+    // input_set_capability(input_dev, EV_KEY, KEY_LEFTALT);
 
     return input_dev;
 }
@@ -89,60 +89,60 @@ unsigned char move_keyboard_cursor(unsigned int *row, unsigned int *col, int d_r
 }
 
 // first time submitting urb on open
-int jskbd_input_open(struct input_dev *input_dev)
+int input_open(struct input_dev *input_dev)
 {
-    struct usb_joystick_kbd *usb_joystick_kbd = input_get_drvdata(input_dev);
+    struct usb_joystick_kbd *jst = input_get_drvdata(input_dev);
 
     // initialize timer
-    timer_setup(&usb_joystick_kbd->timer, input_timer_callback, 0);
-    mod_timer(&usb_joystick_kbd->timer, jiffies + TIMER_PERIOD);
+    timer_setup(&jst->timer, input_timer_callback, 0);
+    mod_timer(&jst->timer, jiffies + TIMER_PERIOD);
 
     // ping first urb
-    if (usb_submit_urb(usb_joystick_kbd->urb, GFP_KERNEL) != 0)
+    if (usb_submit_urb(jst->urb, GFP_KERNEL) != 0)
         return -EIO;
 
     return 0;
 }
 
 // kills urb
-void jskbd_input_close(struct input_dev *input_dev)
+void input_close(struct input_dev *input_dev)
 {
-    struct usb_joystick_kbd *usb_joystick_kbd = input_get_drvdata(input_dev);
-    del_timer_sync(&usb_joystick_kbd->timer);
-    usb_kill_urb(usb_joystick_kbd->urb);
+    struct usb_joystick_kbd *jst = input_get_drvdata(input_dev);
+    del_timer_sync(&jst->timer);
+    usb_kill_urb(jst->urb);
 }
 
 void input_timer_callback(struct timer_list *timer)
 {
-    struct usb_joystick_kbd *usb_joystick_kbd;
+    struct usb_joystick_kbd *jst;
     bool was_update = false;
 
-    usb_joystick_kbd = from_timer(usb_joystick_kbd, timer, timer);
+    jst = from_timer(jst, timer, timer);
 
     // check if relative update needed
-    if (abs(usb_joystick_kbd->mouse_dx) > 2)
+    if (abs(jst->mouse_dx) > 2)
     {
-        input_report_rel(usb_joystick_kbd->input_dev, REL_X, usb_joystick_kbd->mouse_dx);
+        input_report_rel(jst->input_dev, REL_X, jst->mouse_dx);
         was_update = true;
     }
-    if (abs(usb_joystick_kbd->mouse_dy) > 2)
+    if (abs(jst->mouse_dy) > 2)
     {
-        input_report_rel(usb_joystick_kbd->input_dev, REL_Y, usb_joystick_kbd->mouse_dy);
+        input_report_rel(jst->input_dev, REL_Y, jst->mouse_dy);
         was_update = true;
     }
-    if (abs(usb_joystick_kbd->wheel_dy) > 0)
+    if (abs(jst->wheel_dy) > 0)
     {
-        input_report_rel(usb_joystick_kbd->input_dev, REL_WHEEL, usb_joystick_kbd->wheel_dy);
+        input_report_rel(jst->input_dev, REL_WHEEL, jst->wheel_dy);
         was_update = true;
     }
 
     if (was_update)
     {
-        input_sync(usb_joystick_kbd->input_dev);
+        input_sync(jst->input_dev);
         mod_timer(timer, jiffies + TIMER_PERIOD);
     }
     else
     {
-        usb_joystick_kbd->is_timer_active = false;
+        jst->is_timer_active = false;
     }
 }

@@ -220,15 +220,15 @@ void jskbd_complete(struct urb *urb)
 int probe(struct usb_interface *intf, const struct usb_device_id *id)
 {
     int status;
-    struct usb_joystick_kbd *usb_joystick_kbd;
+    struct usb_joystick_kbd *jst;
     struct usb_endpoint_descriptor *int_in, *int_out;
     int pipe;
 
     printk(KERN_INFO MOD_PREFIX "probe\n");
 
     // allocating memory for usb_joystick_kbd struct
-    usb_joystick_kbd = kzalloc(sizeof(struct usb_joystick_kbd), GFP_KERNEL);
-    if (usb_joystick_kbd == NULL)
+    jst = kzalloc(sizeof(struct usb_joystick_kbd), GFP_KERNEL);
+    if (jst == NULL)
     {
         printk(KERN_ERR MOD_PREFIX "failed to allocate memory for struct usb_joystick_kbd\n");
         return -ENOMEM;
@@ -243,9 +243,9 @@ int probe(struct usb_interface *intf, const struct usb_device_id *id)
     }
 
     // allocating buffer data for data transfer
-    usb_joystick_kbd->usbdev = interface_to_usbdev(intf);
-    usb_joystick_kbd->transfer_buffer = usb_alloc_coherent(usb_joystick_kbd->usbdev, PACKET_LEN, GFP_KERNEL, &usb_joystick_kbd->dma_addr);
-    if (usb_joystick_kbd->transfer_buffer == NULL)
+    jst->usbdev = interface_to_usbdev(intf);
+    jst->transfer_buffer = usb_alloc_coherent(jst->usbdev, PACKET_LEN, GFP_KERNEL, &jst->dma_addr);
+    if (jst->transfer_buffer == NULL)
     {
         printk(KERN_ERR MOD_PREFIX "failed to allocate transfer buffer\n");
         status = -ENOMEM;
@@ -253,8 +253,8 @@ int probe(struct usb_interface *intf, const struct usb_device_id *id)
     }
 
     // allocating USB request block
-    usb_joystick_kbd->urb = usb_alloc_urb(0, GFP_KERNEL);
-    if (usb_joystick_kbd->urb == NULL)
+    jst->urb = usb_alloc_urb(0, GFP_KERNEL);
+    if (jst->urb == NULL)
     {
         printk(KERN_ERR MOD_PREFIX "failed to allocate urb\n");
         status = -ENOMEM;
@@ -262,63 +262,63 @@ int probe(struct usb_interface *intf, const struct usb_device_id *id)
     }
 
     // allocate input device
-    usb_joystick_kbd->input_dev = allocate_joystick_input_dev(usb_joystick_kbd->usbdev);
-    if (usb_joystick_kbd->input_dev == NULL)
+    jst->input_dev = allocate_joystick_input_dev(jst->usbdev);
+    if (jst->input_dev == NULL)
     {
         printk(KERN_ERR MOD_PREFIX "failed to allocate input device\n");
         status = -ENOMEM;
         goto ret3;
     }
 
-    // to access usb_joystick_kbd from input_dev
-    input_set_drvdata(usb_joystick_kbd->input_dev, usb_joystick_kbd);
+    // to access jst from input_dev
+    input_set_drvdata(jst->input_dev, jst);
 
     // link keycodes
-    usb_joystick_kbd->keycodes = get_keycode_map(&usb_joystick_kbd->keypos_row, &usb_joystick_kbd->keypos_col);
+    jst->keycodes = get_keycode_map(&jst->keypos_row, &jst->keypos_col);
 
     // register created input device
-    status = input_register_device(usb_joystick_kbd->input_dev);
+    status = input_register_device(jst->input_dev);
     if (status != 0)
     {
         printk(KERN_ERR MOD_PREFIX "failed to register input device. status: %d\n", status);
         goto ret4;
     }
 
-    pipe = usb_rcvintpipe(usb_joystick_kbd->usbdev, int_in->bEndpointAddress);
+    pipe = usb_rcvintpipe(jst->usbdev, int_in->bEndpointAddress);
 
     // fill urb for interrupt type
-    usb_fill_int_urb(usb_joystick_kbd->urb, usb_joystick_kbd->usbdev, pipe, usb_joystick_kbd->transfer_buffer, PACKET_LEN, jskbd_complete, usb_joystick_kbd, int_in->bInterval);
-    usb_joystick_kbd->urb->transfer_dma = usb_joystick_kbd->dma_addr;
-    usb_joystick_kbd->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+    usb_fill_int_urb(jst->urb, jst->usbdev, pipe, jst->transfer_buffer, PACKET_LEN, jskbd_complete, jst, int_in->bInterval);
+    jst->urb->transfer_dma = jst->dma_addr;
+    jst->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
     // custom joystick related stuff
-    usb_joystick_kbd->mouse_speed_mode = MOUSE_SPEED_MODE_FAST;
+    jst->mouse_speed_mode = MOUSE_SPEED_MODE_FAST;
 
-    usb_set_intfdata(intf, usb_joystick_kbd);
+    usb_set_intfdata(intf, jst);
 
     // creating entry in proc vfs
-    usb_joystick_kbd->proc_entry = create_joystick_event_entry(usb_joystick_kbd);
-    if (usb_joystick_kbd->proc_entry == NULL)
+    jst->proc_entry = create_joystick_event_entry(jst);
+    if (jst->proc_entry == NULL)
     {
         printk(KERN_ERR MOD_PREFIX "could not create proc entry");
         status = -EINVAL;
         goto ret5;
     }
 
-    init_waitqueue_head(&usb_joystick_kbd->wq);
+    init_waitqueue_head(&jst->wq);
     __module_get(THIS_MODULE);
     return 0;
 
 ret5:
-    input_unregister_device(usb_joystick_kbd->input_dev);
+    input_unregister_device(jst->input_dev);
 ret4:
-    input_free_device(usb_joystick_kbd->input_dev);
+    input_free_device(jst->input_dev);
 ret3:
-    usb_free_urb(usb_joystick_kbd->urb);
+    usb_free_urb(jst->urb);
 ret2:
-    usb_free_coherent(usb_joystick_kbd->usbdev, PACKET_LEN, usb_joystick_kbd->transfer_buffer, usb_joystick_kbd->dma_addr);
+    usb_free_coherent(jst->usbdev, PACKET_LEN, jst->transfer_buffer, jst->dma_addr);
 ret1:
-    kfree(usb_joystick_kbd);
+    kfree(jst);
     return status;
 }
 

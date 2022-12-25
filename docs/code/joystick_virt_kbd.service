@@ -2,7 +2,6 @@
 Description=Joystick virtual keyboard service
 
 [Service]
-Type=exec
 Restart=always
 RestartSec=1
 EnvironmentFile=/var/lib/joystick_virt_kbd/.env

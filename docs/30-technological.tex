@@ -16,6 +16,48 @@
 
 В качестве среды разработки была выбран редактор VSCode.
 
+\subsection{Структуры драйвера}
+
+На листинге \ref{lst:driver:struct} приведена главная структура разрабатываемого драйвера.
+
+\begin{code}
+	\captionof{listing}{Структура данных драйвера}
+	\label{lst:driver:struct}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/driver.h}
+\end{code}
+
+На листинге \ref{lst:driver:event} приведена структура события, посылаемого демону.
+
+\begin{code}
+	\captionof{listing}{Структура события перемещения указателя}
+	\label{lst:driver:event}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/event.h}
+\end{code}
+
 \clearpage
 
 \subsection{Реализация алгоритмов}
@@ -39,6 +81,8 @@
 	{text}
 	{code/driver.c}
 \end{code}
+
+\clearpage
 
 На листинге \ref{lst:driver:proc-read} приведена реализация функций работы с файлом в виртуальной файловой системе /proc.
 
@@ -102,8 +146,6 @@
 	{code/joystick_virt_kbd.service}  
 \end{code}
 
-\clearpage
-
 На листинге \ref{lst:service:makefile} представлена часть файла сборки, отвечающая за установку и удаление сервиса из подсистемы \texttt{systemd}.
 
 \begin{code}
@@ -123,5 +165,11 @@
 	{text}
 	{code/sysd_makefile}  
 \end{code}
+
+\subsection{Сборка и запуск}
+
+Для сборки загружаемого модуля ядра достаточно выполнить команду \texttt{make} в папке с кодом модуля, после чего загрузка модуля в ядро осуществляется командой \texttt{insmod joystick\_kbd.ko}.
+
+Сборка и запуск демона выполняется аналогичным образом. Выполнение команды \texttt{make} без параметров приведет к сборке исполняемого файла. Чтобы установить его в систему, необходимо выполнить команду \texttt{make install}. При этом сервис будет сразу же запущен. Для остановки и удаления программы из системы необходимо использовать команду \texttt{make uninstall}.
 
 \pagebreak

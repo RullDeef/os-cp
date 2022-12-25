@@ -18,6 +18,7 @@
         "evbit",
         "eventfd",
         "gamepad",
+        "inotify",
         "interruptible",
         "intfdata",
         "IRUGO",

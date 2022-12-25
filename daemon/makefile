@@ -23,20 +23,15 @@ all: $(EXECUTABLE)
 install: $(EXECUTABLE)
 	sudo cp $(EXECUTABLE) $(APP_INSTALL_PATH)
 	sudo cp systemd/joystick_virt_kbd.service $(SERVICE_INSTALL_PATH)/joystick_virt_kbd.service
-	sudo cp systemd/joystick_restart.service $(SERVICE_INSTALL_PATH)/joystick_restart.service
-	sudo cp systemd/joystick_restart.path $(SERVICE_INSTALL_PATH)/joystick_restart.path
 	sudo mkdir -p $(PRIVATE_DATA_PATH)
 	sudo -E sh -c 'env > $(PRIVATE_DATA_PATH)/.env'
 	sudo systemctl daemon-reload
-	sudo systemctl start joystick_restart.path
+	sudo systemctl start joystick_virt_kbd
 
 uninstall:
 	sudo systemctl stop joystick_virt_kbd
 	sudo rm -rf $(SERVICE_INSTALL_PATH)/joystick_virt_kbd.service
-	sudo rm -rf $(SERVICE_INSTALL_PATH)/joystick_restart.service
-	sudo rm -rf $(SERVICE_INSTALL_PATH)/joystick_restart.path
-	sudo rm -rf $(PRIVATE_DATA_PATH)
-	sudo rm -rf $(APP_INSTALL_PATH)
+	sudo rm -rf $(PRIVATE_DATA_PATH) $(APP_INSTALL_PATH)
 	sudo systemctl daemon-reload
 
 $(EXECUTABLE): $(OBJECTS)
