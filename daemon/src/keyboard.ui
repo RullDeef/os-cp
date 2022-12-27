@@ -1988,7 +1988,7 @@
     <enum>QFrame::Panel</enum>
    </property>
    <property name="text">
-    <string>Win</string>
+    <string>Meta</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

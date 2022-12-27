@@ -1,27 +1,23 @@
 \section{Технологический раздел}
 
+\subsection{Выбор языка и среды разработки}
+
+Несмотря на то, что в ядро Linux с версии 6.1 добавлена поддержка языка программирования Rust \cite{Rust}, для написания драйвера был выбран язык программирования C, так как язык Rust внедряется в качестве эксперимента.
+
+Для написания демона был выбран язык программирования С++ и библиотека Qt для создания и отображения виртуальной клавиатуры.
+
+Для сборки обоих программ будет использована утилита Make. В качестве среды разработки был выбран редактор VSCode.
+
 На момент написания данной работы новейшей версией ярда Linux была версия 6.1. LTS версия ядра -- 5.15.
 
 Загружаемый модуль ядра будет написан для версий ядра 5.15 и 6.1. Для учета особенностей каждой из версий будет использована условная компиляция.
 
-Демон будет написан в виде сервиса утилиты systemd \cite{systemd}.
-
-\subsection{Выбор средств реализации}
-
-Несмотря на то, что в ядро Linux с версии 6.1 добавлена поддержка языка программирования Rust \cite{Rust}, для написания драйвера был выбран язык программирования C, так как внедрение языка Rust является экспериментальной особенностью.
-
-Для написания демона был выбран язык программирования С++. Также было решено использовать библиотеку Qt для создания и отображения виртуальной клавиатуры.
-
-Для сборки обоих программ будет использована утилита Make.
-
-В качестве среды разработки была выбран редактор VSCode.
-
 \subsection{Структуры драйвера}
 
-На листинге \ref{lst:driver:struct} приведена главная структура разрабатываемого драйвера.
+Для хранения данных, связанных с подключенным устройством была объявлена структура, показанная на листинге \ref{lst:driver:struct}.
 
 \begin{code}
-	\captionof{listing}{Структура данных драйвера}
+	\captionof{listing}{Структура \texttt{usb\_joystick\_kbd}}
 	\label{lst:driver:struct}
 	\inputminted
 	[
@@ -38,10 +34,10 @@
 	{code/driver.h}
 \end{code}
 
-На листинге \ref{lst:driver:event} приведена структура события, посылаемого демону.
+Для передачи события изменения позиции указателя на виртуальной клавиатуре объявлена структура, показанная на листинге \ref{lst:driver:event}.
 
 \begin{code}
-	\captionof{listing}{Структура события перемещения указателя}
+	\captionof{listing}{Структура \texttt{joystick\_event}}
 	\label{lst:driver:event}
 	\inputminted
 	[
@@ -60,12 +56,77 @@
 
 \clearpage
 
-\subsection{Реализация алгоритмов}
-
-На листинге \ref{lst:driver:urb-handle} приведена реализация обработки корректного URB пакета.
+\subsection{Точки входа драйвера}
 
 \begin{code}
-	\captionof{listing}{Реализация алгоритма обработки корректного блока URB}
+	\captionof{listing}{функция \texttt{probe} USB драйвера}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/probe.c}
+\end{code}
+
+\begin{code}
+	\captionof{listing}{функция \texttt{disconnect} USB драйвера}
+	\inputminted
+	[
+	frame=single,
+	framerule=0.5pt,
+	framesep=20pt,
+	fontsize=\footnotesize,
+	tabsize=4,
+	linenos,
+	numbersep=5pt,
+	xleftmargin=10pt,
+	]
+	{text}
+	{code/disconnect.c}
+\end{code}
+
+%Для использования возможностей подсистемы ввода необходимо зарегистрировать драйвер устройства ввода. Создание структуры драйвера может быть выполнено вызовом одной из функции
+
+%\begin{small}
+%\begin{verbatim}
+%struct input_dev *input_allocate_device(void);
+%struct input_dev *devm_input_allocate_device(struct device *dev);
+%\end{verbatim}
+%\end{small}
+
+%Вторая функция использует механизм управляемых ресурсов устройств \cite{devres}. Это позволяет сократить количество ошибок, связанных с очищением памяти после использования, в связи с применением счетчика ссылок. Для описания ресурсов устройства в ядре имеется специальная структура \texttt{devres}.
+
+%\begin{small}
+%\begin{verbatim}
+%typedef void (*dr_release_t)(struct device *dev, void *res);
+%
+%struct devres_node {
+%    struct list_head entry;
+%    dr_release_t release;
+%    const char *name;
+%    size_t size;
+%};
+%
+%struct devres {
+%    struct devres_node node;
+%    u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
+%};
+%\end{verbatim}
+%\end{small}
+
+%При удалении структуры устройства из системы, все связанные ресурсы будут освобождены посредством вызова функций \texttt{dr\_release\_t}.
+
+\subsection{Функция обработки URB пакета}
+
+\begin{code}
+	\captionof{listing}{Функция обработки URB пакета}
 	\label{lst:driver:urb-handle}
 	\inputminted
 	[
@@ -82,12 +143,10 @@
 	{code/driver.c}
 \end{code}
 
-\clearpage
-
-На листинге \ref{lst:driver:proc-read} приведена реализация функций работы с файлом в виртуальной файловой системе /proc.
+\subsection{Функция чтения файла событий}
 
 \begin{code}
-	\captionof{listing}{Реализация функций работы с файлом событий}
+	\captionof{listing}{Функция чтения файла событий}
 	\label{lst:driver:proc-read}
 	\inputminted
 	[
@@ -104,10 +163,10 @@
 	{code/proc_event.c}  
 \end{code}
 
-На листинге \ref{lst:driver:input-dev} представлена реализация функций для работы с устройством ввода подсистемы \texttt{input}.
+\subsection{Точки входа подсистемы ввода для интерактивных устройств}
 
 \begin{code}
-	\captionof{listing}{Реализация функций для работы с устройством ввода подсистемы \texttt{input}}
+	\captionof{listing}{Функции для работы с устройством ввода подсистемы \texttt{input}}
 	\label{lst:driver:input-dev}
 	\inputminted
 	[

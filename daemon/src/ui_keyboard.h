@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'keyboardwaVhCT.ui'
+** Form generated from reading UI file 'keyboardwtIbEz.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.7
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef KEYBOARDWAVHCT_H
-#define KEYBOARDWAVHCT_H
+#ifndef KEYBOARDWTIBEZ_H
+#define KEYBOARDWTIBEZ_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -746,7 +746,7 @@ public:
         label_f11->setText(QCoreApplication::translate("Keyboard", "F11", nullptr));
         label_f12->setText(QCoreApplication::translate("Keyboard", "F12", nullptr));
         label_delete->setText(QCoreApplication::translate("Keyboard", "delete", nullptr));
-        label_macro->setText(QCoreApplication::translate("Keyboard", "Win", nullptr));
+        label_macro->setText(QCoreApplication::translate("Keyboard", "Meta", nullptr));
         label_leftalt->setText(QCoreApplication::translate("Keyboard", "alt", nullptr));
         label_space->setText(QString());
         label_rightalt->setText(QCoreApplication::translate("Keyboard", "alt", nullptr));
@@ -765,4 +765,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // KEYBOARDWAVHCT_H
+#endif // KEYBOARDWTIBEZ_H

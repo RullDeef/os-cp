@@ -34,7 +34,7 @@ plt.hist(data_d, alpha=0.5, bins=math.floor(len(data_d) / 50), label='демон
 # plt.plot(list(range(N_MAX)), data_d, label='демон запущен')
 
 plt.xlabel('время выполнения (нс)')
-plt.ylabel('количество измерений')
+plt.ylabel('количество обработанных URB пакетов')
 plt.legend()
 plt.grid()
 plt.show()
